@@ -1,0 +1,46 @@
+network feed_forward //sequential networks
+{
+	tensor[10]; //specify input like this
+
+	dense<50>; // hyper-parameters go in angle brackets
+	relu; // daisy-chain transformations
+	dense<100>;
+	relu;
+	dense<100>;
+	relu;
+	dense<50>;
+	relu;
+	dense<10>;
+}
+
+module cnn_block<int size> // modules don't need an input - they are meant to be used in networks, so their input is either specified in the parentheses or, in the daisy-chain case, is automatically the previous layer's output
+{
+	conv<3, size, 'same'>;
+	relu;
+	conv<3, size, 'same'>;
+	relu;
+	maxpool2d;
+}
+
+network cnn
+{
+	tensor[28, 28, 3]; //dimensions go in square brackets
+
+	cnn_block<64>;
+	cnn_block<128>;
+	cnn_block<128>;
+	cnn_block<32>;
+
+	flatten;
+
+	dense<50>;
+	relu;
+	dense<100>;
+	relu;
+	dense<100>;
+	relu;
+	dense<50>;
+	relu;
+	dense<10>;
+
+}
