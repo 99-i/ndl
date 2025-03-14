@@ -1,7 +1,7 @@
-#include "program.h"
+#include "ast/program.h"
 #include <stdlib.h>
 
-struct program *create_program(void)
+struct program *program_create(void)
 {
 
 	struct program *prog = malloc(sizeof(*prog));

@@ -1,21 +1,28 @@
+#include "args.h"
+#include "validate.h"
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
-// https://github.com/tsoding/sowon/blob/master/png2c.c#L9
-const char *shift(int *argc, char ***argv)
-{
-	assert(*argc > 0);
-	const char *result = *argv[0];
-	*argc -= 1;
-	*argv += 1;
-	return result;
-}
-
-void usage(void);
+static void usage(void);
 
 int main(int argc, char **argv)
 {
-	if (argc == 1)
+	shift(&argc, &argv);
+
+	if (argc <= 0)
+	{
+		usage();
+		return 1;
+	}
+
+	const char *command = shift(&argc, &argv);
+
+	if (!strcmp("validate", command))
+	{
+		validate(argc, argv);
+	}
+	else
 	{
 		usage();
 		return 1;
@@ -24,7 +31,13 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-void usage(void)
+static void usage(void)
 {
-	fprintf(stderr, "Usage: \n");
+	fprintf(stderr, "\n");
+	fprintf(stderr, "Usage: ndl <command> [<args>] \n");
+	fprintf(stderr, "This is a list of available commands:\n\n");
+
+	fprintf(stderr, "validate - validate an NDL file for syntax and semantic errors\n");
+
+	fprintf(stderr, "\n");
 }

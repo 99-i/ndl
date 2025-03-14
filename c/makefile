@@ -1,28 +1,44 @@
 GEN_SOURCES = gen/parser.c gen/lexer.c
-C_SOURCES = src/main.c src/program.c
+C_SOURCES = src/args.c src/ast.c src/block.c src/main.c src/network.c src/program.c src/validate.c
 
 ALL_SOURCES = $(GEN_SOURCES) $(C_SOURCES)
 
-OUTBIN = bin/ndl
+BINDIR = bin
+OBJECTS = $(patsubst %.c,$(BINDIR)/%.o,$(ALL_SOURCES))
+TARGET = $(BINDIR)/ndl
 
-$(OUTBIN): $(ALL_SOURCES) | bin
-	mkdir -p $(dir $@)
-	gcc -ggdb -Iinclude -Igen $(ALL_SOURCES) -o $(OUTBIN)
+CC = gcc
+CFLAGS = -ggdb -Iinclude -Igen
 
-bin:
-	@mkdir -p bin
+.PHONY: all clean
+all: $(TARGET)
 
-gen:
-	@mkdir -p gen
+$(TARGET): $(OBJECTS)
+	$(CC) $(OBJECTS) -o $(TARGET)
 
-gen/parser.c: parser/parser.y | gen
-	bison -d -o $@ $<
+gen/parser.c gen/parser.h: parser/parser.y | gen
+	bison -Wcounterexamples -d -o gen/parser.c parser/parser.y
 
-gen/lexer.c: parser/lexer.l | gen
-	flex -o $@ $<
+gen/lexer.c gen/lexer.h: parser/lexer.l gen/parser.h | gen
+	flex --header-file=gen/lexer.h -o gen/lexer.c parser/lexer.l
 
-.PHONY: clean
+bin/gen/parser.o: gen/parser.c gen/parser.h gen/lexer.h | $(BINDIR)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c gen/parser.c -o bin/gen/parser.o
+
+bin/gen/lexer.o: gen/lexer.c gen/parser.h gen/lexer.h | $(BINDIR)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c gen/lexer.c -o bin/gen/lexer.o
+
+$(BINDIR)/%.o: %.c | $(BINDIR)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BINDIR) gen:
+	@mkdir -p $@
+
 clean:
-	@rm -rf gen
-	@rm -f $(OUTBIN)
-	@rm -rf bin
+	@rm -rf gen $(BINDIR)
+	@echo Directories cleaned.
+
+.PHONY: clean all

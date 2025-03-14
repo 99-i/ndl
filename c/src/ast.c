@@ -1,4 +1,4 @@
-#include "ast.h"
+#include "ast/ast.h"
 #include "frontend.h"
 
 int ast_create_from_file(struct program **prog, const char *src)
@@ -12,11 +12,10 @@ int ast_create_from_file(struct program **prog, const char *src)
 		return 1;
 	}
 
-	state = yy_scan_string("", scanner);
+	state = yy_scan_string(src, scanner);
 
 	if (yyparse(prog, scanner))
 	{
-		printf("failed\n");
 		return 1;
 	}
 

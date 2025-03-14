@@ -1,6 +1,6 @@
 %{
 #include "parser.h"
-#include "program.h"
+#include "ast/program.h"
 
 #include <stdio.h>
 
