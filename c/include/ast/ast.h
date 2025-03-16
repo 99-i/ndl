@@ -1,4 +1,4 @@
 #pragma once
-#include "program.h"
+#include "ast/node.h"
 
-int ast_create_from_file(struct program **prog, const char *file);
+int ast_create_from_file(struct node **node, const char *file);

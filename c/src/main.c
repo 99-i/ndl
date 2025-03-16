@@ -1,4 +1,5 @@
 #include "args.h"
+#include "ast/node.h"
 #include "validate.h"
 #include <assert.h>
 #include <stdio.h>

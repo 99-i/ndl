@@ -1,5 +1,5 @@
 GEN_SOURCES = gen/parser.c gen/lexer.c
-C_SOURCES = src/args.c src/ast.c src/block.c src/main.c src/network.c src/program.c src/validate.c
+C_SOURCES = src/args.c src/ast.c src/main.c src/network.c src/node.c src/validate.c src/util.c src/postprocess.c
 
 ALL_SOURCES = $(GEN_SOURCES) $(C_SOURCES)
 

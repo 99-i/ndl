@@ -3,15 +3,11 @@
 #include <stdlib.h>
 #include "parser.h"
 #include "lexer.h"
-#include "ast/program.h"
-#include "ast/block.h"
-#include "ast/statement.h"
-#include "ast/network.h"
+#include "ast/node.h"
 
-int yyerror(struct program **prog, yyscan_t scanner, const char *s);
+void yyerror(YYLTYPE *yylloc, struct node **node, yyscan_t scanner, const char *msg);
 
 %}
-
 
 %code requires {
   typedef void* yyscan_t;
@@ -21,19 +17,21 @@ int yyerror(struct program **prog, yyscan_t scanner, const char *s);
 %defines "gen/parser.h"
 
 %define api.pure
-%lex-param   { yyscan_t scanner }
-%parse-param { struct program **prog }
+%define parse.error verbose
+
+%locations
+
+%parse-param { struct node **node }
 %parse-param { yyscan_t scanner }
 
-%union {
+%lex-param   { yyscan_t scanner }
+
+%union
+{
     int ival;
     float fval;
     char *sval;
-	struct program *prog;
-	struct declaration *dec;
-	struct block *block;
-	struct statement *statement;
-	struct network *network;
+	struct node *node;
 }
 
 %token SEMICOLON NETWORK
@@ -44,45 +42,53 @@ int yyerror(struct program **prog, yyscan_t scanner, const char *s);
 %token <fval> FLOAT
 %token <sval> IDENTIFIER
 
-%type <prog> program
-%type <dec> declaration 
-%type <dec> network_declaration
-%type <block> block
-%type <block> block_statements
-%type <statement> statement
-
-
+%type <node> root
+%type <node> toplevel_statement 
+%type <node> network_definition
+%type <node> block
+%type <node> block_statements
+%type <node> statement
 
 %%
 
-program:
+root:
 	{
-		*prog = program_create();
-		$$ = *prog; 
+		*node = node_create_root();
+		$$ = *node; 
 	}
-	| program declaration
+	| root toplevel_statement
 	{ 
-		program_add_dec($1, $2);
+		node_add_child_node($1, $2);
 		$$ = $1;
 	}
-	;
-
-declaration:
-	network_declaration
+	| root error toplevel_statement
 	{
-		$$ = $1;
+		yyerrok;
 	}
 	;
 
-network_declaration:
+toplevel_statement:
+	network_definition
+	;
+
+network_definition:
 	NETWORK IDENTIFIER block
 	{
-		$$ = network_create($2, $3);
+		$$ = node_create();
+
+		$$->type = NODE_NETWORK_DEFINITION;
+		$$->network.network_name = $2;
+
+		$$->children = $3->children;
+		$$->children_size = $3->children_size;
+
+		// don't call node_free because we only used the block node as a placeholder to hold children and children_size, which we still need.
+		free($3);
 	}
 	;
 
 block:
-	LBRACE block_statements RBRACKET
+	LBRACE block_statements RBRACE
 	{
 		$$ = $2;
 	}
@@ -90,16 +96,34 @@ block:
 
 block_statements:
 	{
-		$$ = block_create();
+		$$ = node_create();
 	}
 	| block_statements statement
 	{
-		block_add_statement($1, $2);
+		node_add_child_node($1, $2);
 		$$ = $1;		
+	}
+	| block_statements error statement
+	{
+		yyerrok;
 	}
 	;
 
 statement:
+	IDENTIFIER
+	{
+		$$ = node_create();
+		$$->type = NODE_STATEMENT;
+		$$->statement.name = $1;
+	}
 	;
 %%
 
+void yyerror(YYLTYPE *yylloc, struct node **node, yyscan_t scanner, const char *msg)
+{
+	struct location loc;
+	loc.line = yylloc->first_line;
+	loc.col = yylloc->first_column;
+
+	root_add_err(*node, msg, loc);
+}

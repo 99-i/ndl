@@ -1,15 +1,15 @@
 #include "validate.h"
 #include "args.h"
 #include "ast/ast.h"
-#include "ast/program.h"
+#include "ast/node.h"
+#include "postprocess.h"
+
 #include <stdio.h>
 
 static void usage(void);
 
 int validate(int argc, char **argv)
 {
-	struct program *prog;
-
 	if (!argc)
 	{
 		usage();
@@ -17,10 +17,10 @@ int validate(int argc, char **argv)
 	}
 
 	const char *file = shift(&argc, &argv);
+	struct node *node;
 
-	printf("%s\n", file);
-
-	ast_create_from_file(&prog, "");
+	if (ast_create_from_file(&node, file))
+		return 1;
 
 	return 0;
 }

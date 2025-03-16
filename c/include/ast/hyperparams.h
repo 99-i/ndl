@@ -24,8 +24,9 @@ struct hyperparams
 {
 	struct hyperparam *params;
 	size_t params_size;
+	size_t params_capacity;
 };
 
 struct hyperparams *hyperparams_create(void);
 
-void hyperparams_add_param(struct hyperparam* hyperparam, struct hyperparam *param);
+void hyperparams_add_param(struct hyperparams* hyperparams, struct hyperparam param);
