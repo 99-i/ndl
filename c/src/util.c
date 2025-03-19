@@ -4,21 +4,33 @@
 
 int slurp_file(const char *filename, char **dest)
 {
-	size_t size;
-	FILE *fptr = fopen(filename, "r+");
-
+	FILE *fptr = fopen(filename, "r");
 	if (!fptr)
+	{
 		return 1;
+	}
 
 	fseek(fptr, 0, SEEK_END);
+	long size = ftell(fptr);
+	if (size < 0)
+	{
+		fclose(fptr);
+		return 1;
+	}
 
-	size = ftell(fptr);
+	rewind(fptr);
 
 	*dest = malloc(size + 1);
+	if (!*dest)
+	{
+		fclose(fptr);
+		return 1;
+	}
 
-	fseek(fptr, 0, SEEK_SET);
+	size_t bytes_read = fread(*dest, 1, size, fptr);
+	fclose(fptr);
 
-	fread(*dest, size, 1, fptr);
+	(*dest)[bytes_read] = '\0';
 
 	return 0;
 }

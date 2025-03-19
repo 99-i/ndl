@@ -28,25 +28,16 @@ int ast_create_from_file(struct node **node, const char *file)
 
 	state = yy_scan_string(src, scanner);
 
-	if (yyparse(node, scanner))
+	if (yyparse(node, scanner, file))
 	{
 		return 1;
 	}
-
-	(*node)->root.filename = strdup(file);
 
 	yy_delete_buffer(state, scanner);
 
 	yylex_destroy(scanner);
 
-	if ((*node)->root.err)
-	{
-		fprintf(stderr, "%s", (*node)->root.err_str);
-		node_free(*node);
-		return 1;
-	}
-
-	postprocess_ast(*node);
+	free(src);
 
 	return 0;
 }

@@ -8,3 +8,9 @@ Diagnostics:
       builtin_definition,
       unused-parameter,
     ]
+
+If:
+  PathMatch: gen/*
+
+Index:
+  Background: Skip

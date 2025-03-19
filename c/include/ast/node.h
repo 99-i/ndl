@@ -1,14 +1,16 @@
 #pragma once
+#include "ast/dims.h"
 #include "ast/network.h"
 #include "ast/statement.h"
-#include <stdlib.h>
+#include "ast/tensor.h"
 #include <stdbool.h>
 
 enum node_type
 {
 	NODE_ROOT,
 	NODE_NETWORK_DEFINITION,
-	NODE_STATEMENT
+	NODE_STATEMENT,
+	NODE_TENSOR // e.g., tensor[10]
 };
 
 struct location
@@ -23,13 +25,14 @@ struct node
 	struct location loc;
 	union
 	{
-		struct {
+		struct root {
 			char *err_str;
 			bool err;
 			char *filename;
 		} root;
 		struct network_definition network;
 		struct statement statement;
+		struct tensor tensor;
 	};
 
 	struct node **children;

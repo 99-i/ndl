@@ -7,11 +7,10 @@
 
 struct node *node_create_root(void)
 {
-
 	struct node *node = malloc(sizeof(*node));
 	node->type = NODE_ROOT;
 	node->children_size = 0;
-	node->children = malloc(0);
+	node->children = NULL;
 
 	node->root.err_str = malloc(1);
 	node->root.err_str[0] = 0;
@@ -24,7 +23,7 @@ struct node *node_create(void)
 {
 	struct node *node = malloc(sizeof(*node));
 	node->children_size = 0;
-	node->children = malloc(0);
+	node->children = NULL;
 
 	return node;
 }
@@ -32,9 +31,7 @@ struct node *node_create(void)
 void node_add_child_node(struct node *node, struct node *child)
 {
 	node->children_size++;
-
 	node->children = realloc(node->children, node->children_size * sizeof(struct node *));
-
 	node->children[node->children_size - 1] = child;
 }
 
@@ -44,7 +41,7 @@ void root_add_err(struct node *node, const char *err, struct location loc)
 
 	char buf[256] = {0};
 
-	snprintf(buf, 256, "\033[0;31mSyntax error:\033[0m %s at line %d:%d\n", err, loc.line, loc.col);
+	snprintf(buf, 256, "\033[0;31mSyntax error:\033[0m %s at line %d:%d", err, loc.line, loc.col);
 
 	size_t old = strlen(node->root.err_str);
 	size_t new = old + strlen(buf);
@@ -75,10 +72,15 @@ void node_free(struct node *node)
 			// todo: hypers_free
 			free(node->statement.hypers);
 			break;
+		case NODE_TENSOR:
+			free(node->tensor.dims.dims);
+			free(node->tensor.name);
+			break;
 	}
 
 	for (size_t i = 0; i < node->children_size; i++)
 		node_free(node->children[i]);
 
+	free(node->children);
 	free(node);
 }

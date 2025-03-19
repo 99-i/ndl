@@ -40,18 +40,24 @@ WHITESPACE [ \t\r\n]+
 
 %%
 
+"/*"([^*]|\*+[^*/])*\*+"/"   { } // block comments
+"//".*                       { } // line comments
+
 network { return NETWORK; }
+tensor { return TENSOR; }
 ";" { return SEMICOLON; }
 "{" { return LBRACE; }
 "}" { return RBRACE; }
 "[" { return LBRACKET; }
 "]" { return RBRACKET; }
+"=" { return EQUALS; }
+"," { return COMMA; }
 
 {DIGIT}        { yylval->ival = atoi(yytext); return INT; }
 {FLOAT}        { yylval->fval = atof(yytext); return FLOAT; }
 {IDENT}        { yylval->sval = strdup(yytext); return IDENTIFIER; }
-{WHITESPACE}   { /* Ignore whitespace */ }
-.              { printf("Unexpected character: %c\n", yytext[0]); }
+{WHITESPACE}   { }
+.              { return INVALID; }
 
 %%
 

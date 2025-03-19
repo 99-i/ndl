@@ -16,11 +16,24 @@ int validate(int argc, char **argv)
 		return 1;
 	}
 
-	const char *file = shift(&argc, &argv);
+	// const char *file = shift(&argc, &argv);
+	const char *file = "ex.ndl";
+
 	struct node *node;
 
 	if (ast_create_from_file(&node, file))
+	{
+		if (node->root.err)
+		{
+			fprintf(stderr, "%s", node->root.err_str);
+			node_free(node);
+		}
 		return 1;
+	}
+
+	postprocess_ast(node);
+
+	node_free(node);
 
 	return 0;
 }

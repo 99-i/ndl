@@ -1,33 +1,36 @@
 #include "args.h"
-#include "ast/node.h"
 #include "validate.h"
 #include <assert.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 static void usage(void);
 
 int main(int argc, char **argv)
 {
-	shift(&argc, &argv);
+	// shift(&argc, &argv);
 
-	if (argc <= 0)
-	{
-		usage();
-		return 1;
-	}
+	// if (argc <= 0)
+	// {
+	// 	usage();
+	// 	return 1;
+	// }
 
-	const char *command = shift(&argc, &argv);
+	// const char *command = shift(&argc, &argv);
 
-	if (!strcmp("validate", command))
-	{
-		validate(argc, argv);
-	}
-	else
-	{
-		usage();
-		return 1;
-	}
+	// if (!strcmp("validate", command))
+	// {
+	// 	validate(argc, argv);
+	// }
+	// else
+	// {
+	// 	usage();
+	// 	return 1;
+	// }
+
+	validate(argc, argv);
 
 	return 0;
 }

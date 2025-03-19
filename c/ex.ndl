@@ -1,11 +1,4 @@
 network my_network
 {
-asdf
-			1sdf
-			1fd
-}
-
-
-network asdf
-{
+	my_layer = tensor[10]; // specify input like this
 }

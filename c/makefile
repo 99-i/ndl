@@ -1,5 +1,5 @@
 GEN_SOURCES = gen/parser.c gen/lexer.c
-C_SOURCES = src/args.c src/ast.c src/main.c src/network.c src/node.c src/validate.c src/util.c src/postprocess.c
+C_SOURCES = src/args.c src/ast.c src/main.c src/network.c src/node.c src/validate.c src/util.c src/postprocess.c src/dims.c
 
 ALL_SOURCES = $(GEN_SOURCES) $(C_SOURCES)
 
@@ -8,7 +8,18 @@ OBJECTS = $(patsubst %.c,$(BINDIR)/%.o,$(ALL_SOURCES))
 TARGET = $(BINDIR)/ndl
 
 CC = gcc
-CFLAGS = -ggdb -Iinclude -Igen
+CFLAGS = -Iinclude -Igen
+
+DEBUG_FLAGS = -ggdb3 -O0 -DDEBUG
+RELEASE_FLAGS = -O2
+
+BUILD_TYPE ?= debug
+
+ifeq ($(BUILD_TYPE), debug)
+    CFLAGS += $(DEBUG_FLAGS)
+else
+    CFLAGS += $(RELEASE_FLAGS)
+endif
 
 .PHONY: all clean
 all: $(TARGET)
